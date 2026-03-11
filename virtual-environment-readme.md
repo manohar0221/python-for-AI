@@ -5,6 +5,7 @@ Download and install Python from the official site.
 Check installation:
 
 python --version
+
 python3 --version
 
 
@@ -18,7 +19,8 @@ Terminal → New Terminal
 
 # Create a Virtual Environment
 
-# Run this inside your project folder:
+Run this inside your project folder:
+
 python -m venv venv
 
 This creates a folder named venv.
@@ -37,7 +39,9 @@ After activation you will see:
 # Select Interpreter in VS Code
 
 1. Press Ctrl + Shift + P
+
 2. Search:
+
 Python: Select Interpreter
 
 3. Choose:

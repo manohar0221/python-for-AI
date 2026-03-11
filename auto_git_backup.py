@@ -53,19 +53,9 @@ class AutoGitHandler(FileSystemEventHandler):
             print("No changes to commit.")
             return
 
-        # Generate commit messages per file
-        commit_msgs = []
-        for f in files:
-            filename = os.path.basename(f)
-            if filename.endswith(".py"):
-                commit_msgs.append(f"Code updated in {filename}")
-            else:
-                commit_msgs.append(f"File updated {filename}")
-
-        # Combine messages into one commit
-        msg = "; ".join(commit_msgs)
-
-        # Commit & push
+        # Determine commit message
+        filenames = [os.path.basename(f) for f in files]
+        msg = "Code Updated in " + ", ".join(filenames)
         subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True)
         subprocess.run(["git", "push"], capture_output=True, text=True)
         print(f"✅ Backup pushed with message: {msg}")

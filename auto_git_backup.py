@@ -21,8 +21,8 @@ class AutoGitHandler(FileSystemEventHandler):
         # Normalize file path for cross-platform compatibility
         filepath = event.src_path.replace("\\", "/")
 
-        # Ignore .git folder and venv folder
-        if filepath.startswith(".git/") or "/venv/" in filepath:
+        # Ignore .git folder and venv
+        if filepath.startswith(".git/") or "venv" in filepath:
             return
 
         # Track changed files
@@ -44,35 +44,40 @@ class AutoGitHandler(FileSystemEventHandler):
 
         print(f"Changes detected in: {', '.join(files)}")
 
-        # Commit each file individually with an appropriate message
+        # Stage all changes
+        subprocess.run(["git", "add", "."], capture_output=True, text=True)
+
+        # Check if there are staged changes
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True,
+            text=True
+        ).stdout.strip()
+
+        if not status:
+            print("No changes to commit.")
+            return
+
+        # Generate smart commit messages per file type
+        commit_msgs = []
         for f in files:
             filename = os.path.basename(f)
-
-            # Determine commit message based on file type
             if filename.endswith(".py"):
-                msg = f"Code updated in {filename}"
+                commit_msgs.append(f"Code update in {filename}")
             else:
-                msg = f"File updated {filename}"
+                commit_msgs.append(f"File updated {filename}")
 
-            # Stage and commit this file
-            subprocess.run(["git", "add", f], capture_output=True, text=True)
-            status = subprocess.run(
-                ["git", "status", "--porcelain", f],
-                capture_output=True,
-                text=True
-            ).stdout.strip()
+        # Combine messages into a single commit
+        msg = "; ".join(commit_msgs)
 
-            if not status:
-                print(f"No changes to commit for {filename}.")
-                continue
-
-            subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True)
-            subprocess.run(["git", "push"], capture_output=True, text=True)
-            print(f"✅ Backup pushed with message: {msg}")
+        # Commit and push
+        subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True)
+        subprocess.run(["git", "push"], capture_output=True, text=True)
+        print(f"✅ Backup pushed with message: {msg}")
 
 
 if __name__ == "__main__":
-    path = os.getcwd()  # Watch the current project folder
+    path = os.getcwd()  # Watch current project folder
     event_handler = AutoGitHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)

@@ -56,6 +56,7 @@ This connects VS Code to your virtual environment.
 deactivate
 
 # Create a .gitignore file and add:
+
 venv/
 
 so the environment isn’t pushed to Git.

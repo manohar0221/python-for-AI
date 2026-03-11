@@ -30,7 +30,7 @@ class AutoGitHandler(FileSystemEventHandler):
 
         if files != [""]:
             # Commit message based on changed files
-            msg = f"Update: {', '.join(files)}"
+            msg = f"Updated: {', '.join(files)}"
 
             # Commit & push
             subprocess.run(["git", "commit", "-m", msg])

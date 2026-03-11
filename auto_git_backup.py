@@ -1,3 +1,6 @@
+# pip install watchdog
+# python auto_git_backup.py
+
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import subprocess

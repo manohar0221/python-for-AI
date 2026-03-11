@@ -63,7 +63,7 @@ class AutoGitHandler(FileSystemEventHandler):
         for f in files:
             filename = os.path.basename(f)
             if filename.endswith(".py"):
-                commit_msgs.append(f"Code updated in {filename}")
+                commit_msgs.append(f"Code update in {filename}")
             else:
                 commit_msgs.append(f"File updated {filename}")
 

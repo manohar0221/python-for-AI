@@ -1,0 +1,32 @@
+[
+  {
+    "date": "2026-03-11",
+    "amount": 120.5,
+    "category": "Food",
+    "description": "Lunch"
+  },
+  {
+    "date": "2026-03-11",
+    "amount": 300,
+    "category": "Travel",
+    "description": "Uber"
+  },
+  {
+    "date": "2026-03-11",
+    "amount": 500.0,
+    "category": "Shopping",
+    "description": "Shirt"
+  },
+  {
+    "date": "2026-03-11",
+    "amount": 20.0,
+    "category": "Snacks",
+    "description": "Biscuits"
+  },
+  {
+    "date": "2026-03-12",
+    "amount": 10000.0,
+    "category": "Rent",
+    "description": "1bhk room"
+  }
+]

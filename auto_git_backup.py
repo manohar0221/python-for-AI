@@ -22,7 +22,7 @@ class AutoGitHandler(FileSystemEventHandler):
         filepath = event.src_path.replace("\\", "/")
 
         # Ignore .git folder and venv
-        if filepath.startswith(".git/") or "/venv/" in filepath:
+        if filepath.startswith(".git/") or "venv" in filepath:
             return
 
         # Track changed files

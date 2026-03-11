@@ -17,14 +17,19 @@ class AutoGitHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if event.is_directory:
             return
-        if any(x in event.src_path for x in [".git", "venv"]):
+
+        # Normalize file path for cross-platform compatibility
+        filepath = event.src_path.replace("\\", "/")
+
+        # Ignore .git folder and venv
+        if filepath.startswith(".git/") or "/venv/" in filepath:
             return
 
-        filepath = event.src_path.replace("\\", "/")
+        # Track changed files
         with self.lock:
             self.changed_files.add(filepath)
 
-        # Reset/start the timer
+        # Reset/start 10-second timer for batch commit
         if self.timer:
             self.timer.cancel()
         self.timer = threading.Timer(10, self.commit_and_push)
@@ -39,10 +44,10 @@ class AutoGitHandler(FileSystemEventHandler):
 
         print(f"Changes detected in: {', '.join(files)}")
 
-        # Stage changes
+        # Stage all changes
         subprocess.run(["git", "add", "."], capture_output=True, text=True)
 
-        # Check for staged changes
+        # Check if there are staged changes
         status = subprocess.run(
             ["git", "status", "--porcelain"],
             capture_output=True,
@@ -53,9 +58,19 @@ class AutoGitHandler(FileSystemEventHandler):
             print("No changes to commit.")
             return
 
-        # Determine commit message
-        filenames = [os.path.basename(f) for f in files]
-        msg = "Code Updated in " + ", ".join(filenames)
+        # Generate smart commit messages per file type
+        commit_msgs = []
+        for f in files:
+            filename = os.path.basename(f)
+            if filename.endswith(".py"):
+                commit_msgs.append(f"Code updated in {filename}")
+            else:
+                commit_msgs.append(f"File updated {filename}")
+
+        # Combine messages into a single commit
+        msg = "; ".join(commit_msgs)
+
+        # Commit and push
         subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True)
         subprocess.run(["git", "push"], capture_output=True, text=True)
         print(f"✅ Backup pushed with message: {msg}")

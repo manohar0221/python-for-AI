@@ -17,16 +17,26 @@ class AutoGitHandler(FileSystemEventHandler):
 
         print(f"Change detected: {event.src_path}")
 
-        # Add, commit, push
-        subprocess.run(["git", "add", "."])
-        subprocess.run([
-            "git",
-            "commit",
-            "-m",
-            f"auto backup {time.strftime('%Y-%m-%d %H:%M:%S')}"
-        ])
-        subprocess.run(["git", "push"])
-        print("✅ Backup pushed")
+        # Get list of changed files
+        result = subprocess.run(
+            ["git", "diff", "--name-only"],
+            capture_output=True,
+            text=True
+        )
+        files = result.stdout.strip().split("\n")
+
+        if files != [""]:
+            # Create commit message based on changed files
+            msg = f"Updated: {', '.join(files)}"
+
+            # Add, commit, push
+            subprocess.run(["git", "add", "."])
+            subprocess.run(["git", "commit", "-m", msg])
+            subprocess.run(["git", "push"])
+
+            print(f"✅ Backup pushed with message: {msg}")
+        else:
+            print("No changes to commit.")
 
 if __name__ == "__main__":
     path = os.getcwd()  # watch current project

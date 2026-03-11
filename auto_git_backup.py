@@ -17,25 +17,24 @@ class AutoGitHandler(FileSystemEventHandler):
 
         print(f"Change detected: {event.src_path}")
 
-        # Stage all changes first
+        # Stage all changes
         subprocess.run(["git", "add", "."])
 
-        # Check staged changes
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--name-only"],
+        # Check for any changes (staged or unstaged)
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
             capture_output=True,
             text=True
-        )
-        files = result.stdout.strip().split("\n")
+        ).stdout.strip()
 
-        if files != [""]:
-            # Commit message based on changed files
-            msg = f"Updated: {', '.join(files)}"
+        if status:
+            # Optional: commit message based on first changed file for simplicity
+            first_file = status.splitlines()[0].split()[-1]
+            msg = f"Updated: {first_file}"
 
             # Commit & push
             subprocess.run(["git", "commit", "-m", msg])
             subprocess.run(["git", "push"])
-
             print(f"✅ Backup pushed with message: {msg}")
         else:
             print("No changes to commit.")
@@ -50,7 +49,7 @@ if __name__ == "__main__":
     print("Watching for changes (press Ctrl+C to stop)...")
     try:
         while True:
-            time.sleep(1)  # Keeps observer alive without blocking
+            time.sleep(1)  # keeps observer alive
     except KeyboardInterrupt:
         observer.stop()
     observer.join()

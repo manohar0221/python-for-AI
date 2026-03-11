@@ -6,28 +6,38 @@ from watchdog.events import FileSystemEventHandler
 import subprocess
 import time
 import os
+import threading
 
 class AutoGitHandler(FileSystemEventHandler):
-    last_commit_time = 0  # Cooldown timer
+    def __init__(self):
+        self.changed_files = set()
+        self.lock = threading.Lock()
+        self.timer = None
 
     def on_modified(self, event):
-        # Ignore directories and unwanted folders
         if event.is_directory:
             return
         if any(x in event.src_path for x in [".git", "venv"]):
             return
 
-        # Cooldown: only commit once every 10 seconds
-        now = time.time()
-        if now - AutoGitHandler.last_commit_time < 10:
-            return
-        AutoGitHandler.last_commit_time = now
-
-        # Normalize file path
         filepath = event.src_path.replace("\\", "/")
-        filename = os.path.basename(filepath)
+        with self.lock:
+            self.changed_files.add(filepath)
 
-        print(f"Change detected: {filepath}")
+        # Reset/start the timer
+        if self.timer:
+            self.timer.cancel()
+        self.timer = threading.Timer(10, self.commit_and_push)
+        self.timer.start()
+
+    def commit_and_push(self):
+        with self.lock:
+            if not self.changed_files:
+                return
+            files = list(self.changed_files)
+            self.changed_files.clear()
+
+        print(f"Changes detected in: {', '.join(files)}")
 
         # Stage changes
         subprocess.run(["git", "add", "."], capture_output=True, text=True)
@@ -44,17 +54,12 @@ class AutoGitHandler(FileSystemEventHandler):
             return
 
         # Determine commit message
-        if "/data/" in filepath:
-            msg = f"Data update in {filename}"
-        elif filepath.endswith(".py"):
-            msg = f"Code update in {filename}"
-        else:
-            msg = f"Update in {filename}"  # fallback for other files
-
-        # Commit & push
+        filenames = [os.path.basename(f) for f in files]
+        msg = "Update in " + ", ".join(filenames)
         subprocess.run(["git", "commit", "-m", msg], capture_output=True, text=True)
         subprocess.run(["git", "push"], capture_output=True, text=True)
         print(f"✅ Backup pushed with message: {msg}")
+
 
 if __name__ == "__main__":
     path = os.getcwd()  # Watch current project folder

@@ -44,9 +44,7 @@ class AutoGitHandler(FileSystemEventHandler):
             return
 
         # Determine commit message
-        if "expenses.json" in filepath:
-            msg = f"Added expense in {filename}"
-        elif "/data/" in filepath:
+        if "/data/" in filepath:
             msg = f"Data update in {filename}"
         elif filepath.endswith(".py"):
             msg = f"Code update in {filename}"

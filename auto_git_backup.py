@@ -17,9 +17,9 @@ class AutoGitHandler(FileSystemEventHandler):
         if any(x in event.src_path for x in [".git", "venv"]):
             return
 
-        # Cooldown: only commit once every 3 seconds
+        # Cooldown: only commit once every 10 seconds
         now = time.time()
-        if now - AutoGitHandler.last_commit_time < 3:
+        if now - AutoGitHandler.last_commit_time < 10:
             return
         AutoGitHandler.last_commit_time = now
 

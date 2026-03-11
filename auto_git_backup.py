@@ -9,7 +9,7 @@ import os
 
 class AutoGitHandler(FileSystemEventHandler):
     def on_modified(self, event):
-        # ignore folders and unwanted files
+        # Ignore directories and unwanted folders
         if event.is_directory:
             return
         if any(x in event.src_path for x in [".git", "venv"]):
@@ -17,20 +17,22 @@ class AutoGitHandler(FileSystemEventHandler):
 
         print(f"Change detected: {event.src_path}")
 
-        # Get list of changed files
+        # Stage all changes first
+        subprocess.run(["git", "add", "."])
+
+        # Check staged changes
         result = subprocess.run(
-            ["git", "diff", "--name-only"],
+            ["git", "diff", "--cached", "--name-only"],
             capture_output=True,
             text=True
         )
         files = result.stdout.strip().split("\n")
 
         if files != [""]:
-            # Create commit message based on changed files
+            # Commit message based on changed files
             msg = f"Updated: {', '.join(files)}"
 
-            # Add, commit, push
-            subprocess.run(["git", "add", "."])
+            # Commit & push
             subprocess.run(["git", "commit", "-m", msg])
             subprocess.run(["git", "push"])
 
@@ -39,7 +41,7 @@ class AutoGitHandler(FileSystemEventHandler):
             print("No changes to commit.")
 
 if __name__ == "__main__":
-    path = os.getcwd()  # watch current project
+    path = os.getcwd()  # Watch the current project
     event_handler = AutoGitHandler()
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
@@ -48,7 +50,7 @@ if __name__ == "__main__":
     print("Watching for changes (press Ctrl+C to stop)...")
     try:
         while True:
-            time.sleep(1)  # keeps observer alive without locking terminal
+            time.sleep(1)  # Keeps observer alive without blocking
     except KeyboardInterrupt:
         observer.stop()
     observer.join()

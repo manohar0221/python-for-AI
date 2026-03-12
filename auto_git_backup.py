@@ -36,7 +36,7 @@ class AutoGitHandler(FileSystemEventHandler):
         if self.timer:
             self.timer.cancel()
 
-        self.timer = threading.Timer(60, self.commit_and_push)
+        self.timer = threading.Timer(10, self.commit_and_push)
         self.timer.start()
 
 
@@ -102,3 +102,4 @@ if __name__ == "__main__":
         observer.stop()
 
     observer.join()
+    

@@ -32,11 +32,11 @@ class AutoGitHandler(FileSystemEventHandler):
         with self.lock:
             self.changed_files.add(filepath)
 
-        # Restart 10 second timer
+        # Restart 60 second timer
         if self.timer:
             self.timer.cancel()
 
-        self.timer = threading.Timer(10, self.commit_and_push)
+        self.timer = threading.Timer(60, self.commit_and_push)
         self.timer.start()
 
 

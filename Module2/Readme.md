@@ -1,0 +1,1 @@
+This project demonstrates how to tokenize text using BERT’s WordPiece tokenizer, visualize tokens with optional color coding, and inspect token IDs for NLP preprocessing.

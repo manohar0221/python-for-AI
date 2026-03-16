@@ -1,0 +1,7 @@
+Install PyTorch because otherwise you’ll get warnings or errors about PyTorch not being found.
+
+Import AutoTokenizer in any file where you use it.
+
+Import show_tokens if the token visualization function is defined in a separate file.
+
+The decode method is unnecessary here, since it converts token IDs back to text but isn’t used for token-to-ID mapping.

@@ -14,7 +14,7 @@ from helper import get_completion
 prompt = """
 Rewrite the below sentense.
 
-Sentense: "I play very well cricket."
+Sentense: "I play cricket well."
 """
 
 response = get_completion(prompt)
